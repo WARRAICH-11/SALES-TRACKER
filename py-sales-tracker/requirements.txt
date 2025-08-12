@@ -13,4 +13,7 @@ pandas==2.2.2
 numpy==1.26.4
 plotly==5.22.0
 onnxruntime==1.18.0
-requests==2.32.3 
+requests==2.32.3
+# Security & Sync
+cryptography==42.0.8
+PyJWT==2.8.0 
