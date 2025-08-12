@@ -9,8 +9,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 def test_core_imports():
     """Test that core application modules can be imported."""
     try:
-        from app.data.models import Product, Customer, Sale, SaleItem
-        from app.data.db import get_session, init_db
+        from app.data.models import Product, Customer, Sale, SaleItem, init_db
+        from app.data.db import get_session
         assert True
     except ImportError as e:
         assert False, f"Core imports failed: {e}"
