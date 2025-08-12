@@ -1,0 +1,16 @@
+PySide6==6.7.2
+SQLAlchemy==2.0.30
+openpyxl==3.1.5
+reportlab==4.2.2
+appdirs==1.4.4
+python-dateutil==2.9.0.post0
+# AI & Forecasting
+llama-cpp-python==0.2.78
+sentence-transformers==2.7.0
+faiss-cpu==1.8.0.post1
+statsmodels==0.14.2
+pandas==2.2.2
+numpy==1.26.4
+plotly==5.22.0
+onnxruntime==1.18.0
+requests==2.32.3 

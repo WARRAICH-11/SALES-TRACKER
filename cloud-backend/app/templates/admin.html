@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Sales Admin</title>
+  <script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 24px; }
+    .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin-bottom: 12px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #eee; padding: 6px 8px; text-align: left; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 1024px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .row { display: flex; gap: 12px; align-items: center; }
+  </style>
+</head>
+<body>
+  <h1>Sales Admin Dashboard</h1>
+
+  <div class="card">
+    <h2>Totals</h2>
+    <p>Total Sales: {{ '%.2f' % total_sales }}</p>
+    <p>Total Orders: {{ total_orders }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Top 10 Products (Last 30 Days)</h2>
+    <table>
+      <thead><tr><th>Product External ID</th><th>Revenue</th></tr></thead>
+      <tbody>
+        {% for pid, rev in top_products %}
+          <tr><td>{{ pid }}</td><td>{{ '%.2f' % rev }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <h2 style="margin:0">Revenue & Profit Trend</h2>
+      <label>Days: <input type="number" id="trendDays" value="90" min="7" max="365" style="width:80px"/></label>
+      <button id="trendRefresh">Refresh</button>
+    </div>
+    <div id="trend" style="height: 360px"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Agent Activity Heatmap</h2>
+      <div id="heatmap" style="height: 360px"></div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <h2 style="margin:0">Revenue by Category</h2>
+        <label>Days: <input type="number" id="pieDays" value="30" min="7" max="365" style="width:80px"/></label>
+        <button id="pieRefresh">Refresh</button>
+      </div>
+      <div id="pie" style="height: 360px"></div>
+    </div>
+  </div>
+
+  <script>
+    const token = {{ api_token|tojson }};
+    async function fetchJSON(url) {
+      const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token }});
+      if (!resp.ok) throw new Error('Request failed');
+      return await resp.json();
+    }
+
+    async function loadTrend() {
+      const days = parseInt(document.getElementById('trendDays').value || '90');
+      const data = await fetchJSON(`/analytics/trend?days=${days}`);
+      const x = data.points.map(p => p.x);
+      const rev = data.points.map(p => p.revenue);
+      const prof = data.points.map(p => p.profit);
+      const layout = { margin: {l:40,r:10,t:20,b:40}, hovermode: 'x unified', legend: {orientation:'h'}, xaxis:{type:'date'} };
+      Plotly.newPlot('trend', [
+        { x, y: rev, type: 'scatter', mode: 'lines+markers', name: 'Revenue' },
+        { x, y: prof, type: 'scatter', mode: 'lines+markers', name: 'Profit' },
+      ], layout, {displaylogo:false});
+    }
+
+    async function loadHeatmap() {
+      const data = await fetchJSON(`/analytics/heatmap`);
+      const z = data.grid;
+      const layout = { margin:{l:40,r:10,t:20,b:40}, yaxis:{title:'Day of Week', tickvals:[0,1,2,3,4,5,6], ticktext:['Sun','Mon','Tue','Wed','Thu','Fri','Sat']}, xaxis:{title:'Hour'} };
+      Plotly.newPlot('heatmap', [{ z, type: 'heatmap', colorscale: 'YlGnBu' }], layout, {displaylogo:false});
+    }
+
+    async function loadPie() {
+      const days = parseInt(document.getElementById('pieDays').value || '30');
+      const data = await fetchJSON(`/analytics/category_pie?days=${days}`);
+      const labels = data.data.map(d => d.category);
+      const values = data.data.map(d => d.revenue);
+      Plotly.newPlot('pie', [{ labels, values, type: 'pie', hole: 0.4 }], { margin:{l:10,r:10,t:20,b:10} }, {displaylogo:false});
+    }
+
+    document.getElementById('trendRefresh').addEventListener('click', loadTrend);
+    document.getElementById('pieRefresh').addEventListener('click', loadPie);
+
+    loadTrend().catch(console.error);
+    loadHeatmap().catch(console.error);
+    loadPie().catch(console.error);
+  </script>
+</body>
+</html> 

@@ -1,0 +1,23 @@
+version: '3.9'
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - SYNC_AES_KEY_BASE64=${SYNC_AES_KEY_BASE64}
+    volumes:
+      - ./data:/data
+    depends_on:
+      - db
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sales
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata: 
