@@ -56,6 +56,7 @@ class SalesRAG:
             self.rebuild_index()
 
     def rebuild_index(self) -> None:
+        """Rebuild the entire FAISS index from the database."""
         rows: list[str] = []
 
         # Products
@@ -81,10 +82,17 @@ class SalesRAG:
         if not rows:
             rows = ["No data yet. Products, customers, and sales will appear here when created."]
 
+        # Generate embeddings and convert to numpy array
         embeds = self.embedder.encode(rows)
-        dim = embeds.shape[1]
+        embeds_array = np.array(embeds, dtype=np.float32)  # Ensure proper array conversion
+        
+        if embeds_array.size == 0:
+            self.index = None
+            return
+            
+        dim = embeds_array.shape[1]
         self.index = faiss.IndexFlatIP(dim)
-        self.index.add(embeds.astype(np.float32))
+        self.index.add(embeds_array)  # Add the numpy array
 
         FAISS_INDEX_PATH.parent.mkdir(parents=True, exist_ok=True)
         faiss.write_index(self.index, str(FAISS_INDEX_PATH))
