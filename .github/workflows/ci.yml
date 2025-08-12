@@ -17,4 +17,4 @@ jobs:
           pip install pytest
       - name: Run tests
         working-directory: py-sales-tracker
-        run: pytest -q 
+        run: python run_tests.py

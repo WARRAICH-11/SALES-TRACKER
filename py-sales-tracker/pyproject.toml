@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sales-tracker"
+version = "1.0.0"
+description = "Offline-first sales tracking desktop application with AI features"
+authors = [{name = "Sales Tracker Team"}]
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6>=6.7.2",
+    "SQLAlchemy>=2.0.30",
+    "openpyxl>=3.1.5",
+    "reportlab>=4.2.2",
+    "appdirs>=1.4.4",
+    "python-dateutil>=2.9.0",
+    "llama-cpp-python>=0.2.78",
+    "sentence-transformers>=2.7.0",
+    "faiss-cpu>=1.8.0",
+    "statsmodels>=0.14.2",
+    "pandas>=2.2.2",
+    "numpy>=1.26.4",
+    "plotly>=5.22.0",
+    "onnxruntime>=1.18.0",
+    "requests>=2.32.3"
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7.0", "pytest-cov>=4.0"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "pyinstaller>=5.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = ["-v", "--tb=short"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]

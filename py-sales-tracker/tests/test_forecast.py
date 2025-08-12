@@ -1,3 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from app.ai.forecast import ForecastResult
 
 def test_forecast_result_shape():
